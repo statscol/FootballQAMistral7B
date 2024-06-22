@@ -7,9 +7,9 @@ Data sources:
     This data is the historical record of official matches and contains both the results as well as the details of the goals and minute they were scored.
 
 - [EA FC ratings | Kaggle](https://www.kaggle.com/datasets/stefanoleone992/ea-sports-fc-24-complete-player-dataset?select=male_players.csv)
-    in this data source only the male_players.csv file is used and is preprocessed to use the latest data available (EA FC 24 Game). Also we only use a set of columns.
+    In this data source only the `male_players.csv` file is used. Its preprocessed to use the latest data available (EA FC 24 Game) and a small subset of columns.
 
-The approach for this demo consist of creating a SQLliteDB from the csv files which will be fed to the LLM and the SQL agent using Langchain, the LLM selected is Mistral 7B-InstructV0.3. (See Figure below)
+The approach for this demo consists of creating a SQLliteDB from the csv files which will be fed to the LLM and the SQL agent using Langchain, the LLM selected is Mistral 7B-InstructV0.3. (See Figure below)
 
 ![img](./data/description.png)
 
@@ -53,7 +53,19 @@ Using the default question in `utils/inference.py` this is the expected output:
 
 ![img2](./data/demo.png)
 
-Also a gradio App will be available (WIP)
+Also a gradio App is available in the Dockerfile provided. Build it as follows:
+
+```bash
+docker build -t YOUR_IMAGE_NAME:YOUR_TAG .
+```
+
+Run the image in a container
+
+```bash
+docker run -it --rm --NAME YOUR_CONTAINER_NAME --gpus "0" YOUR_IMAGE_NAME:YOUR_TAG
+```
+
+The app will be listening in port 9090, see `app/app.py` if you want to modify other params.
 
 ## 🤿 Contributing to this repo
 
