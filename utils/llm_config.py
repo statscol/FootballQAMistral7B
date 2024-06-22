@@ -33,6 +33,7 @@ LLM_PIPE = HuggingFacePipeline.from_model_id(
     model_kwargs={"quantization_config": bnb_config, "device_map": "auto"},
 )
 
+# modifying default template from https://github.com/langchain-ai/langchain/blob/0cd3f9336164b0971625f19064d07fb08577bf40/libs/community/langchain_community/agent_toolkits/sql/base.py#L163
 SQL_AGENT_PROMPT = PromptTemplate(
     input_variables=["agent_scratchpad", "input"],
     partial_variables={
