@@ -1,6 +1,12 @@
 # Football Rag Chat
 
-Using FIFA data to get insights from football matches
+Using FIFA data to get insights from football matches 
+
+
+The approach for this demo consist of creating a SQLliteDB from the csv files which will be fed to the LLM and the SQL agent using Langchain, the LLM selected is Mistral 7B-InstructV0.3. (See Figure below)
+
+![img](./data/description.png)
+
 
 ## 🪒 Setup
 
@@ -17,8 +23,23 @@ Make sure you have at least 12 GB of VRAM.
 ## 🐍 Usage
 
 
-WIP
 
+After installing the packages in a venv or a Conda env, you can run the following to test the pipeline
+
+
+- Creating DB
+    ```bash
+    python utils/create_db.py
+    ```
+
+    This will create a .db file in the `data` folder. An example is also uploaded. 
+
+- Running Inference
+
+    ```bash
+    python utils/inference.py
+    ```
+    You can modify the input question and play around with this script
 
 ### Demo
 
