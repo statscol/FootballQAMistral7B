@@ -44,7 +44,11 @@ After installing the packages in a venv or a Conda env, you can run the followin
 
 ### Demo
 
-WIP
+Using the default question in `utils/inference.py` this is the expected output
+
+![img](./data/demo.png)
+
+Also a gradio App will be available (WIP)
 
 ## 🤿 Contributing to this repo
 

@@ -22,7 +22,7 @@ agent_executor = create_sql_agent(
 
 
 if __name__ == "__main__":
-    question = """Tell me the expected result from the next match between Colombia and Paraguay in Copa América,
-      use the data from the last 5 years and the average number of goals per team"""
+    question = """What is the expected result from the next match between Colombia and Paraguay in Copa América?
+      use the data between 2010 and 2022 and direct encounters between the two, also return Colombia's probability of winning the match """
     response = agent_executor.run(question)
     print(response)
