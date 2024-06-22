@@ -1,7 +1,8 @@
 # Football Rag Chat
 
-Using FIFA data to get insights from football matches 
+Using FIFA data to get insights from football matches
 
+Data source: [Kaggle](https://www.kaggle.com/datasets/zeesolver/fifa-results?resource=download)
 
 The approach for this demo consist of creating a SQLliteDB from the csv files which will be fed to the LLM and the SQL agent using Langchain, the LLM selected is Mistral 7B-InstructV0.3. (See Figure below)
 
