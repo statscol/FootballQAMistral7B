@@ -2,7 +2,12 @@
 
 Using FIFA data to get insights from football matches
 
-Data source: [Kaggle](https://www.kaggle.com/datasets/zeesolver/fifa-results?resource=download)
+Data sources: 
+- [FIFA matches | Kaggle](https://www.kaggle.com/datasets/zeesolver/fifa-results?resource=download)
+    This data is the historical record of official matches and contains both the results as well as the details of the goals and minute they were scored.
+
+- [EA FC ratings | Kaggle](https://www.kaggle.com/datasets/stefanoleone992/ea-sports-fc-24-complete-player-dataset?select=male_players.csv)
+    in this data source only the male_players.csv file is used and is preprocessed to use the latest data available (EA FC 24 Game). Also we only use a set of columns.
 
 The approach for this demo consist of creating a SQLliteDB from the csv files which will be fed to the LLM and the SQL agent using Langchain, the LLM selected is Mistral 7B-InstructV0.3. (See Figure below)
 
@@ -44,7 +49,7 @@ After installing the packages in a venv or a Conda env, you can run the followin
 
 ### Demo
 
-Using the default question in `utils/inference.py` this is the expected output
+Using the default question in `utils/inference.py` this is the expected output:
 
 ![img2](./data/demo.png)
 

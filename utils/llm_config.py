@@ -1,8 +1,8 @@
 import torch
 from transformers import AutoTokenizer, BitsAndBytesConfig
-from langchain_huggingface import HuggingFacePipeline
 from config import MODEL_ID, MODEL_INIT_TOKEN, MODEL_END_TOKEN
 from langchain.prompts import PromptTemplate
+
 
 bnb_config = BitsAndBytesConfig(
     load_in_4bit=True,
@@ -25,21 +25,18 @@ PIPELINE_INFERENCE_ARGS = {
     "top_p": 0.9,
 }
 
-LLM_PIPE = HuggingFacePipeline.from_model_id(
-    model_id=MODEL_ID,
-    task="text-generation",
-    device="auto",
-    pipeline_kwargs=PIPELINE_INFERENCE_ARGS,
-    model_kwargs={"quantization_config": bnb_config, "device_map": "auto"},
-)
-
 # modifying default template from https://github.com/langchain-ai/langchain/blob/0cd3f9336164b0971625f19064d07fb08577bf40/libs/community/langchain_community/agent_toolkits/sql/base.py#L163
 SQL_AGENT_PROMPT = PromptTemplate(
     input_variables=["agent_scratchpad", "input"],
     partial_variables={
         "table_metadata": """
-            the table 'goals' contains all the goals scored in official FIFA matches between two national teams.
-            Also in the table 'matches' you can find the results from all the matches, both tables are linked using the 'id' column.""",
+            - The table 'goals' contains all the goals scored in official FIFA matches between two national teams.
+            - The table 'matches' you can find the results from all the matches, as well as the tournament the match took place in the column 'tournament'. The column 'neutral' can be also
+                used as a flag to indicate if the match was played in neutral territory (True if not in any of the national teams land).
+                both tables are linked using the 'id' column.
+            - The 'players' table is the latest data available for player rankings and characteristics as age, height, pace, shooting,overall score and also they can be linked to
+                other tables using the 'nationality_name', the player name can be found in the 'short_name' or 'long_name' columns.
+            """,
         "tools": """
             sql_db_query - Input to this tool is a detailed and correct SQL query, output is a result from the database. make sure the values queried are in
             lower case for convenience and also remove accented letters if needed.If the query is not correct, an error message will be returned.
