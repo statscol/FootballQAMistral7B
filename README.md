@@ -46,7 +46,7 @@ After installing the packages in a venv or a Conda env, you can run the followin
 
 Using the default question in `utils/inference.py` this is the expected output
 
-![img](./data/demo.png)
+![img2](./data/demo.png)
 
 Also a gradio App will be available (WIP)
 
