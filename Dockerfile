@@ -1,6 +1,6 @@
 FROM nvcr.io/nvidia/pytorch:24.01-py3
 
-RUN apt-get update -y pip install "huggingface_hub[cli]"
+RUN apt-get update -y && pip install "huggingface_hub[cli]"
 
 WORKDIR /workspace/repository
 
