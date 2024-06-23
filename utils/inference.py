@@ -10,9 +10,6 @@ from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_community.agent_toolkits import create_sql_agent
 from langchain.agents.agent_types import AgentType
 from langchain_huggingface import HuggingFacePipeline
-import sys
-
-sys.path.append("../")
 
 db = SQLDatabase.from_uri(f"sqlite:///{SQL_DATABASE_PATH}")
 
