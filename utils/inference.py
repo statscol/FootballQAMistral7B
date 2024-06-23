@@ -26,10 +26,10 @@ LLM_PIPE = HuggingFacePipeline.from_model_id(
 AGENT_EXECUTOR = create_sql_agent(
     LLM_PIPE,
     db=db,
-    prompt=SQL_AGENT_PROMPT,
+    prompt=SQL_AGENT_PROMPT,  # comment for zero-shot behavior
     agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-    verbose=True,  # set to True to see more details
-    max_iterations=1,  # improve throughtput as reducing iterations
+    verbose=False,  # set to True to see more details
+    max_iterations=10,  # improve throughtput by reducing iterations
     agent_executor_kwargs={
         "return_intermediate_steps": True,
         "handle_parsing_errors": True,

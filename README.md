@@ -2,7 +2,7 @@
 
 Using FIFA data to get insights from football matches
 
-Data sources: 
+Data sources:
 - [FIFA matches | Kaggle](https://www.kaggle.com/datasets/zeesolver/fifa-results?resource=download)
     This data is the historical record of official matches and contains both the results as well as the details of the goals and minute they were scored.
 
@@ -37,7 +37,7 @@ After installing the packages in a venv or a Conda env, you can run the followin
     python utils/create_db.py
     ```
 
-    This will create a .db file in the `data` folder. An example is also uploaded. 
+    This will create a .db file in the `data` folder. An example is also uploaded.
 
 - Running Inference
 
@@ -65,6 +65,9 @@ docker run -it --rm -d -p 9090:9090 --name <YOUR_CONTAINER_NAME>  -e HF_TOKEN=<Y
 ```
 
 The app will be listening in port 9090, see `app/app.py` if you want to modify other params.
+
+![img3](./data/app-demo.png)
+
 
 ## 🤿 Contributing to this repo
 

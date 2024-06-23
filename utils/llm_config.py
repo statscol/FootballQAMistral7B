@@ -15,9 +15,8 @@ bnb_config = BitsAndBytesConfig(
 # You must request access to the checkpoints
 TOKENIZER = AutoTokenizer.from_pretrained(MODEL_ID)
 TERMINATORS = [TOKENIZER.eos_token_id, TOKENIZER.convert_tokens_to_ids("[/INST]")]
-# TERMINATORS = [TOKENIZER.eos_token_id, TOKENIZER.convert_tokens_to_ids("<|eot_id|>")]
 PIPELINE_INFERENCE_ARGS = {
-    "max_new_tokens": 512,
+    "max_new_tokens": 256,
     "do_sample": True,
     "eos_token_id": TERMINATORS,
     "temperature": 0.1,
@@ -26,7 +25,8 @@ PIPELINE_INFERENCE_ARGS = {
 }
 
 
-# modifying default template from https://github.com/langchain-ai/langchain/blob/0cd3f9336164b0971625f19064d07fb08577bf40/libs/community/langchain_community/agent_toolkits/sql/base.py#L163
+# modifying default template from
+# https://github.com/langchain-ai/langchain/blob/0cd3f9336164b0971625f19064d07fb08577bf40/libs/community/langchain_community/agent_toolkits/sql/base.py#L163
 
 
 SQL_AGENT_PROMPT = PromptTemplate(
@@ -51,8 +51,10 @@ SQL_AGENT_PROMPT = PromptTemplate(
                 - tournament:  tournament the match took place in the column, e.g 'Friendly', 'FIFA World Cup','Copa América','UEFA Euro'.
                 - city: city in which the match was played.
                 - country: country in which the match was played.
-                - neutral: boolean used to indicate if the match was played in neutral territory (True if not in any of the national teams land).
-            - The 'players' table is the latest data available for player rankings and characteristics. This table can be linked to other tables using the 'nationality_name':
+                - neutral: boolean used to indicate if the match was played in neutral territory
+                     (True if not in any of the national teams land).
+            - The 'players' table is the latest data available for player rankings and characteristics.
+             This table can be linked to other tables using the 'nationality_name':
                 - short_name: player short name.
                 - long_name: player long name.
                 - height_cm: height of the player.
@@ -67,27 +69,27 @@ SQL_AGENT_PROMPT = PromptTemplate(
                 - overall: average score of player stats.
             """,
         "tools": """
-            sql_db_query - Input to this tool is a detailed and correct SQL query, output is a result from the database. If the query is not correct, an error message will be returned.
-            If an error is returned, rewrite the query, check the query, and try again. If you encounter an issue with Unknown column 'xxxx' in 'field list',
+            sql_db_query - Input to this tool is a detailed and correct SQL query, output is a result from the database.
+            If the query is not correct, an error message will be returned.
+            If an error is returned, rewrite the query, check the query, and try again.
+            If you encounter an issue with Unknown column 'xxxx' in 'field list',
             use sql_db_schema to query the correct table fields.
             sql_db_schema - Input to this tool is a comma-separated list of tables, output is the schema and sample rows for those tables.
-            Be sure that the tables actually exist by calling sql_db_list_tables first! Example Input: table1, table2, table3 also make sure the fields exist in a table.
+            Be sure that the tables actually exist by calling sql_db_list_tables first!
+            Example Input: table1, table2, table3 also make sure the fields exist in a table.
             sql_db_list_tables - Input is an empty string, output is a comma-separated list of tables in the database.
-            sql_db_query_checker - Use this tool to double check if your query is correct before executing it. 
+            sql_db_query_checker - Use this tool to double check if your query is correct before executing it.
             Always use this tool before executing a query with sql_db_query!""",
         "tool_names": "sql_db_query, sql_db_schema, sql_db_list_tables, sql_db_query_checker",
     },
-    template="""Answer the following questions as best you can. Return everything in a markdown formatted string. You have access to the following tools:
-                {tools}
-
-                Also you have the following description of the fields for every table in the database:
-                {table_metadata}
+    template="""Answer the following questions as best you can. You have access to the following tools:{tools}
 
                 Use the following format:
 
                 Question: the input question you must answer
-                Thought: you should always think about what to do clearly because this can only be repeated 2 times.
-                Action: the action to take, should be one of [{tool_names}]
+                Thought: you should always think about what to do clearly.
+                Action: the action to take, should be one of [{tool_names}].
+                Also you have the following description of the fields for every table in the database: {table_metadata}
                 Action Input: the input to the action
                 Observation: the result of the action
                 ... (this Thought/Action/Action Input/Observation can repeat N times)
