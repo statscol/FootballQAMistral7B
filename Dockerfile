@@ -7,7 +7,7 @@ WORKDIR /workspace/repository
 COPY . /workspace/repository/
 
 #fix for transformers import
-RUN pip install -r requirements.txt && RUN pip uninstall transformer-engine -y
+RUN pip install -r requirements.txt && pip uninstall transformer-engine -y
 
 EXPOSE 8080 9090
 
