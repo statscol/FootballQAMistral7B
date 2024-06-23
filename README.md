@@ -13,6 +13,7 @@ The approach for this demo consists of creating a SQLliteDB from the csv files w
 
 ![img](./data/description.png)
 
+In order to access this Model you'll need to create a HF Access Token in your account (HF_TOKEN)
 
 ## 🪒 Setup
 
@@ -51,16 +52,16 @@ Using the default question in `utils/inference.py` this is the expected output:
 
 ![img2](./data/demo.png)
 
-Also a gradio App is available in the Dockerfile provided. Build it as follows:
+Also a gradio App is available, run it in your venv using `python app/app.py` or build the Dockerfile provided as follows:
 
 ```bash
 docker build -t <YOUR_IMAGE_NAME:YOUR_TAG> .
 ```
 
-Run the image in a container and provide your HF_TOKEN
+Run the image in a container and set your HF_TOKEN
 
 ```bash
-docker run -it --rm -d --name <YOUR_CONTAINER_NAME> --gpus "0" <YOUR_IMAGE_NAME:YOUR_TAG> -e HF_ACCESS_TOKEN=<YOUR_HF_TOKEN>
+docker run -it --rm -d --name <YOUR_CONTAINER_NAME> --gpus "0" <YOUR_IMAGE_NAME:YOUR_TAG> -e HF_TOKEN=<YOUR_HF_TOKEN>
 ```
 
 The app will be listening in port 9090, see `app/app.py` if you want to modify other params.

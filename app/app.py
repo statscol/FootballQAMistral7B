@@ -1,10 +1,14 @@
 import gradio as gr
+import sys
+
+sys.path.append("utils")
 from config import DEFAULT_BOT_MESSAGE
-from llm_config import PIPELINE_INFERENCE_ARGS
-from inference import agent_executor
+from llm_config import PIPELINE_INFERENCE_ARGS, parse_output
+from inference import AGENT_EXECUTOR
 
 
 # adapted from https://github.com/gradio-app/gradio/issues/7925#issuecomment-2041571560
+# currently not used in a MemoryBuffer
 def format_history(msg: str, history: list[list[str, str]], system_prompt: str):
     chat_history = [{"role": "system", "content": system_prompt}]
     for query, response in history:
@@ -16,19 +20,22 @@ def format_history(msg: str, history: list[list[str, str]], system_prompt: str):
 
 def generate_response(
     msg: str,
-    history: list[list[str, str]],
-    system_prompt: str,
+    chat_history: list,
     top_k: int,
     top_p: float,
     temperature: float,
+    return_full_thought: bool,
 ):
-    chat_history = format_history(msg, history, system_prompt)
     PIPELINE_INFERENCE_ARGS["top_k"] = top_k
     PIPELINE_INFERENCE_ARGS["top_p"] = top_p
     PIPELINE_INFERENCE_ARGS["temperature"] = temperature
-    print(PIPELINE_INFERENCE_ARGS)
-    response = agent_executor.run(msg)
-    return response
+    response = AGENT_EXECUTOR.invoke({"input": msg})
+    output = (
+        parse_output(response["intermediate_steps"], return_full_thought)
+        if "Agent stopped due to iteration limit" in response["output"]
+        else response["output"].strip()
+    )
+    return output
 
 
 chatbot = gr.ChatInterface(
@@ -36,6 +43,11 @@ chatbot = gr.ChatInterface(
     chatbot=gr.Chatbot(
         value=[(None, DEFAULT_BOT_MESSAGE)],
         height="64vh",
+        avatar_images=[
+            "https://cdn-icons-png.flaticon.com/512/9385/9385289.png",
+            "https://cdn-icons-png.flaticon.com/512/8649/8649607.png",
+        ],
+        render_markdown=True,
     ),
     examples=[
         ["What is the win probability of Colombia vs Paraguay?"],
@@ -48,22 +60,27 @@ chatbot = gr.ChatInterface(
             0.0,
             100.0,
             label="top_k",
-            value=40,
-            info="Reduces the probability of generating nonsense. A higher value (e.g. 100) will give more diverse answers, while a lower value (e.g. 10) will be more conservative. (Default: 40)",
+            value=10,
+            info="Reduces the probability of generating nonsense. A higher value (e.g. 100) will give more diverse answers, while a lower value (e.g. 10) will be more conservative. (Default: 10)",
         ),
         gr.Slider(
             0.0,
             1.0,
             label="top_p",
-            value=0.9,
-            info=" Works together with top-k. A higher value (e.g., 0.95) will lead to more diverse text, while a lower value (e.g., 0.5) will generate more focused and conservative text. (Default: 0.9)",
+            value=0.6,
+            info=" Works together with top-k. A higher value (e.g., 0.95) will lead to more diverse text, while a lower value (e.g., 0.5) will generate more focused and conservative text. (Default: 0.6)",
         ),
         gr.Slider(
             0.1,
             1.0,
             label="temperature",
-            value=0.1,
-            info="The temperature of the model. Increasing the temperature will make the model answer more creatively. (Default: 0.1)",
+            value=0.2,
+            info="The temperature of the model. Increasing the temperature will make the model answer more creatively. (Default: 0.2)",
+        ),
+        gr.Checkbox(
+            label="return_full_thought",
+            value=False,
+            info="When the agent reaches max iterations you can return the intermediate steps and the full thought behind the answer",
         ),
     ],
     title="FootballQA",
@@ -71,7 +88,7 @@ chatbot = gr.ChatInterface(
     retry_btn="🔄 Regenerate Response",
     undo_btn="↩ Delete Previous",
     clear_btn="🗑️ Clear Chat",
-    cache_examples=True,
+    cache_examples=False,
     css="footer {visibility: hidden}",
 )
 

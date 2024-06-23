@@ -7,9 +7,7 @@ WORKDIR /workspace/repository
 COPY . /workspace/repository/
 
 RUN pip install -r requirements.txt
-RUN mv app/app.py utils/app.py
-
 
 EXPOSE 8080 9090
 
-CMD [ "python", "utils/app.py"]
+CMD [ "python", "app/app.py"]
