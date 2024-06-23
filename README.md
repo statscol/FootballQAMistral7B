@@ -61,7 +61,7 @@ docker build -t <YOUR_IMAGE_NAME:YOUR_TAG> .
 Run the image in a container and set your HF_TOKEN
 
 ```bash
-docker run -it --rm -d -p 9090:9090 --name <YOUR_CONTAINER_NAME>  -e HF_TOKEN=<YOUR_HF_TOKEN> --gpus "0" <YOUR_IMAGE_NAME:YOUR_TAG>
+docker run -it --rm -d -p 9090:9090 --name <YOUR_CONTAINER_NAME>  -e HF_TOKEN=<YOUR_HF_TOKEN> --gpus "0" --ipc=host --ulimit memlock=-1 <YOUR_IMAGE_NAME:YOUR_TAG>
 ```
 
 The app will be listening in port 9090, see `app/app.py` if you want to modify other params.
