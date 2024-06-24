@@ -1,10 +1,10 @@
-import gradio as gr
 import sys
 
 sys.path.append("utils")
 from config import DEFAULT_BOT_MESSAGE
-from llm_config import PIPELINE_INFERENCE_ARGS, parse_output
-from inference import AGENT_EXECUTOR
+from llm_config import PIPELINE_INFERENCE_ARGS
+from inference_chain import CHAIN_INFERENCE
+import gradio as gr
 
 
 # adapted from https://github.com/gradio-app/gradio/issues/7925#issuecomment-2041571560
@@ -29,13 +29,8 @@ def generate_response(
     PIPELINE_INFERENCE_ARGS["top_k"] = top_k
     PIPELINE_INFERENCE_ARGS["top_p"] = top_p
     PIPELINE_INFERENCE_ARGS["temperature"] = temperature
-    response = AGENT_EXECUTOR.invoke({"input": msg})
-    output = (
-        parse_output(response["intermediate_steps"], return_full_thought)
-        if "Agent stopped due to iteration limit" in response["output"]
-        else response["output"].strip()
-    )
-    return output
+    response = CHAIN_INFERENCE.invoke({"question": msg})
+    return response if return_full_thought else response.split(msg)[-1].strip()
 
 
 chatbot = gr.ChatInterface(
@@ -61,14 +56,16 @@ chatbot = gr.ChatInterface(
             100.0,
             label="top_k",
             value=10,
-            info="Reduces the probability of generating nonsense. A higher value (e.g. 100) will give more diverse answers, while a lower value (e.g. 10) will be more conservative. (Default: 10)",
+            info="""Reduces the probability of generating nonsense. A higher value (e.g. 100) will give more diverse answers,
+             while a lower value (e.g. 10) will be more conservative. (Default: 10)""",
         ),
         gr.Slider(
             0.0,
             1.0,
             label="top_p",
             value=0.6,
-            info=" Works together with top-k. A higher value (e.g., 0.95) will lead to more diverse text, while a lower value (e.g., 0.5) will generate more focused and conservative text. (Default: 0.6)",
+            info="""Works together with top-k. A higher value (e.g., 0.95) will lead to more diverse text, while a lower value (e.g., 0.5)
+                will generate more focused and conservative text. (Default: 0.6)""",
         ),
         gr.Slider(
             0.1,

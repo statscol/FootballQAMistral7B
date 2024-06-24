@@ -25,15 +25,11 @@ PIPELINE_INFERENCE_ARGS = {
 }
 
 
-# modifying default template from
-# https://github.com/langchain-ai/langchain/blob/0cd3f9336164b0971625f19064d07fb08577bf40/libs/community/langchain_community/agent_toolkits/sql/base.py#L163
-
-
-SQL_AGENT_PROMPT = PromptTemplate(
-    input_variables=["agent_scratchpad", "input"],
-    partial_variables={
-        "table_metadata": """
-            - The table 'goals' contains all the goals scored in official FIFA matches between two national teams:
+# modifying default template
+# from https://github.com/langchain-ai/langchain/blob/0cd3f9336164b0971625f19064d07fb08577bf40/libs/community/langchain_community/agent_toolkits/sql/base.py#L163
+SQL_AGENT_PREFIX = """You're a football (soccer) and a SQL expert, answer the questions using the tables and
+             also considering the following metadata:
+            * The table 'goals' contains all the goals scored in official FIFA matches between two national teams:
                 - date: date the match took place
                 - home_team: national team which was considered local team.
                 - away_team: national team which was considered away team.
@@ -42,7 +38,7 @@ SQL_AGENT_PROMPT = PromptTemplate(
                 - minute: minute in which the goal was scored.
                 - penalty: boolean whether or not the goal scored form the 'scorer' was a penalty.
                 - own_goal: whether or not the goal scored was an own goal.
-            - The table 'matches' stores the results from official FIFA matches:
+            * The table 'matches' stores the results from official FIFA matches:
                 - date: date the match took place.
                 - home_team: national team which was considered local team.
                 - away_team: national team which was considered away team.
@@ -51,10 +47,8 @@ SQL_AGENT_PROMPT = PromptTemplate(
                 - tournament:  tournament the match took place in the column, e.g 'Friendly', 'FIFA World Cup','Copa América','UEFA Euro'.
                 - city: city in which the match was played.
                 - country: country in which the match was played.
-                - neutral: boolean used to indicate if the match was played in neutral territory
-                     (True if not in any of the national teams land).
-            - The 'players' table is the latest data available for player rankings and characteristics.
-             This table can be linked to other tables using the 'nationality_name':
+                - neutral: boolean used to indicate if the match was played in neutral territory (True if not in any of the national teams land).
+            * The 'players' table is the latest data available for player rankings and characteristics. This table can be linked to other tables using the 'nationality_name':
                 - short_name: player short name.
                 - long_name: player long name.
                 - height_cm: height of the player.
@@ -67,7 +61,44 @@ SQL_AGENT_PROMPT = PromptTemplate(
                 - dribbling: player rating for his ability and agility to dribble from 1 to 100.
                 - physic: player rating for jumping, stamina and strength from 1 to 100.
                 - overall: average score of player stats.
-            """,
+            To validate your actions you have access to the following tools: """
+
+SQL_AGENT_PROMPT = PromptTemplate(
+    input_variables=["input", "agent_scratchpad"],
+    partial_variables={
+        "table_metadata": """
+            * The table 'goals' contains all the goals scored in official FIFA matches between two national teams:
+                - date: date the match took place
+                - home_team: national team which was considered local team.
+                - away_team: national team which was considered away team.
+                - scorer: name of the player who scored a goal.
+                - team: national team of the player who scored the goal in the 'scorer' column.
+                - minute: minute in which the goal was scored.
+                - penalty: boolean whether or not the goal scored form the 'scorer' was a penalty.
+                - own_goal: whether or not the goal scored was an own goal.
+            * The table 'matches' stores the results from official FIFA matches:
+                - date: date the match took place.
+                - home_team: national team which was considered local team.
+                - away_team: national team which was considered away team.
+                - home_score: number of goals scored by the home team.
+                - away_score: number of goals scored by the away team.
+                - tournament:  tournament the match took place in the column, e.g 'Friendly', 'FIFA World Cup','Copa América','UEFA Euro'.
+                - city: city in which the match was played.
+                - country: country in which the match was played.
+                - neutral: boolean used to indicate if the match was played in neutral territory (True if not in any of the national teams land).
+            * The 'players' table is the latest data available for player rankings and characteristics. This table can be linked to other tables using the 'nationality_name':
+                - short_name: player short name.
+                - long_name: player long name.
+                - height_cm: height of the player.
+                - nationality_name: national team of the player.
+                - age: player age in years
+                - pace: player rating for speed and acceleration from 1 to 100.
+                - shooting: player rating for shooting from 1 to 100.
+                - passing: player rating for pass accuracy from 1 to 100.
+                - defending: player rating for defending from 1 to 100.
+                - dribbling: player rating for his ability and agility to dribble from 1 to 100.
+                - physic: player rating for jumping, stamina and strength from 1 to 100.
+                - overall: average score of player stats.""",
         "tools": """
             sql_db_query - Input to this tool is a detailed and correct SQL query, output is a result from the database.
             If the query is not correct, an error message will be returned.
@@ -82,25 +113,85 @@ SQL_AGENT_PROMPT = PromptTemplate(
             Always use this tool before executing a query with sql_db_query!""",
         "tool_names": "sql_db_query, sql_db_schema, sql_db_list_tables, sql_db_query_checker",
     },
-    template="""Answer the following questions as best you can. You have access to the following tools:{tools}
+    template="""Answer the following questions as best you can. Return everything in a markdown formatted string. You have access to the following tools:{tools}
 
                 Use the following format:
 
                 Question: the input question you must answer
                 Thought: you should always think about what to do clearly.
-                Action: the action to take, should be one of [{tool_names}].
-                Also you have the following description of the fields for every table in the database: {table_metadata}
+                Action: the action to take, should be one of [{tool_names}]. Also you have the following description of the fields for every table in the database: {table_metadata}
                 Action Input: the input to the action
                 Observation: the result of the action
                 ... (this Thought/Action/Action Input/Observation can repeat N times)
                 Thought: I now know the final answer
-                Final Answer: the final answer to the original input question. If a final answer has been reached, finish.
+                Final Answer: the final answer to the original input question.
 
                 Begin!
 
                 Question: {input}
                 Thought:{agent_scratchpad}
                 """,
+)
+
+
+SQL_CHAIN_PROMPT = PromptTemplate(
+    partial_variables={
+        "table_metadata": """* The table 'goals' contains all the goals scored in official FIFA matches between two national teams:
+                - date: date the match took place
+                - home_team: national team which was considered local team.
+                - away_team: national team which was considered away team.
+                - scorer: name of the player who scored a goal.
+                - team: national team of the player who scored the goal in the 'scorer' column.
+                - minute: minute in which the goal was scored.
+                - penalty: boolean whether or not the goal scored form the 'scorer' was a penalty.
+                - own_goal: whether or not the goal scored was an own goal.
+            * The table 'matches' stores the results from official FIFA matches:
+                - date: date the match took place.
+                - home_team: national team which was considered local team.
+                - away_team: national team which was considered away team.
+                - home_score: number of goals scored by the home team.
+                - away_score: number of goals scored by the away team.
+                - tournament:  tournament the match took place in the column, e.g 'Friendly', 'FIFA World Cup','Copa América','UEFA Euro'.
+                - city: city in which the match was played.
+                - country: country in which the match was played.
+                - neutral: boolean used to indicate if the match was played in neutral territory (True if not in any of the national teams land).
+            * The 'players' table is the latest data available for player rankings and characteristics. This table can be linked to other tables using the 'nationality_name':
+                - short_name: player short name.
+                - long_name: player long name.
+                - height_cm: height of the player.
+                - nationality_name: national team of the player.
+                - age: player age in years
+                - pace: player rating for speed and acceleration from 1 to 100.
+                - shooting: player rating for shooting from 1 to 100.
+                - passing: player rating for pass accuracy from 1 to 100.
+                - defending: player rating for defending from 1 to 100.
+                - dribbling: player rating for his ability and agility to dribble from 1 to 100.
+                - physic: player rating for jumping, stamina and strength from 1 to 100.
+                - overall: average score of player stats.""",
+        "top_k": "10",
+    },
+    template="""You are a football Guru (soccer) and a SQLite expert. Given an input question, first create a syntactically correct SQLite query
+        to run which you, as an expert, consider will allow you to answer the question.
+        Then look at the results of the query and return the answer to the input question based on what you've found. Unless the user specifies in the question a specific number
+        of examples to obtain, query for at most {top_k} results using the LIMIT clause as per SQLite.
+        You can order the results to return the most informative data in the database.
+        Never query for all columns from a table. You must query only the columns that are needed to answer the question.
+        Wrap each column name in double quotes (") to denote them as delimited identifiers.
+        Pay attention to use only the column names you can see in the tables below.
+        Be careful to not query for columns that do not exist and also avoid at all costs using CREATE,INSERT or DELETE statements.
+        Also, pay attention to which column is in which table.
+
+        Use the following format:
+
+        Question: Question here
+        SQLQuery: SQL Query to run
+        SQLResult: Result of the SQLQuery
+        Answer: Final answer here in markdown formated string
+
+        Only use the following tables:{table_info} and its metadata {table_metadata}
+
+        Question: {input}""",
+    input_variables=["table_info", "input"],
 )
 
 

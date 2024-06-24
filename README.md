@@ -48,11 +48,11 @@ After installing the packages in a venv or a Conda env, you can run the followin
 
 ### Demo
 
-Using the default question in `utils/inference.py` this is the expected output:
+There are two implementation, one corresponds to a SQLAgent (`utils/inference.py`) which can yield better results (Zero-shot-react) but requires more time to finish chains. On the other hand there is a SQL Chain-only approach (`utils/inference_chain.py`) which is good at running SQL queries based on the question but can create hallucinations.
 
 ![img2](./data/demo.png)
 
-Also a gradio App is available, run it in your venv using `python app/app.py` or build the Dockerfile provided as follows:
+Also a gradio App is available based on the Chain-only approach. Run it in your venv using `python app/app.py` or build the Dockerfile provided as follows:
 
 ```bash
 docker build -t <YOUR_IMAGE_NAME:YOUR_TAG> .
@@ -67,7 +67,6 @@ docker run -it --rm -d -p 9090:9090 --name <YOUR_CONTAINER_NAME>  -e HF_TOKEN=<Y
 The app will be listening in port 9090, see `app/app.py` if you want to modify other params.
 
 ![img3](./data/app-demo.png)
-
 
 ## 🤿 Contributing to this repo
 
