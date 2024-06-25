@@ -1,4 +1,4 @@
-# Football Rag Chat
+# Football QA Chat
 
 Using FIFA data to get insights from football matches
 
